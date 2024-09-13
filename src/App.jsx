@@ -6,6 +6,7 @@ import EventDetail from './pages/EventDetail';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux_toolkit/store';
+import EditEvent from './pages/EditEvent';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path='/home' element={<Home />}></Route>
         <Route path='/create' element={<Create/>}></Route>
         <Route path='/detail' element={<EventDetail/>}></Route>
+        <Route path='/edit' element={<EditEvent/>}></Route>
       </Routes>
     </BrowserRouter>
     </Provider>

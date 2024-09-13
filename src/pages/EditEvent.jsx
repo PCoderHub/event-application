@@ -1,69 +1,42 @@
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, InputAdornment, MenuItem, Radio, RadioGroup, TextField, Typography } from "@mui/material"
 import Navbar from "../assets/Navbar"
 import { pages } from "../assets/pages"
-import { useEffect, useRef, useState } from "react";
-import SearchIcon from '@mui/icons-material/Search';
-import { AddressFinder } from '@ideal-postcodes/address-finder';
+import { useSelector } from "react-redux";
 import { app } from '../firebase';
 import { getDatabase, ref, set} from 'firebase/database';
-import { useSelector } from "react-redux";
+import { useState } from "react";
 
-function Create() {
+function EditEvent() {
 
-  /*const [thumbnail, setThumbnail] = useState('');
-  const [picOne, setPicOne] = useState('');
-  const [picTwo, setPicTwo] = useState('');
-  const [picThree, setPicThree] = useState('');*/
+    const userData = useSelector((state) => state.user.user);
+    const eventData = useSelector((state) => state.eventData.eventData);
+    
+    const [eventName, setEventName] = useState(eventData.eventName);
+    const [eventDesc, setEventDesc] = useState(eventData.eventDesc);
+    const [country, setCountry] = useState(eventData.country);
+    const [subCategory, setSubCategory] = useState([...eventData.subCategory]);
+    const [eventDate, setEventDate] = useState(eventData.eventDate);
+    const [startTime, setStartTime] = useState(eventData.startTime);
+    const [endTime, setEndTime] = useState(eventData.endTime);
+    const [venueName, setVenueName] = useState(eventData.venueName);
+    const [lineOne, setLineOne] = useState(eventData.lineOne);
+    const [lineTwo, setLineTwo] = useState(eventData.lineTwo);
+    const [postCode, setPostCode] = useState(eventData.postCode);
+    const [ticketCharge, setTicketCharge] = useState();
+    const [ticketPrice, setTicketPrice] = useState('0.00');
+    const [capacity, setCapacity] = useState('');
 
-  const [eventName, setEventName] = useState('');
-  const [eventDesc, setEventDesc] = useState('');
-  const [country, setCountry] = useState('');
-  const [subCategory, setSubCategory] = useState([]);
-  const [eventDate, setEventDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [venueName, setVenueName] = useState('');
-  const [manual, setManual] = useState(false);
-  const [lineOne, setLineOne] = useState('');
-  const [lineTwo, setLineTwo] = useState('');
-  const [postCode, setPostCode] = useState('');
-  const [ticketCharge, setTicketCharge] = useState();
-  const [ticketPrice, setTicketPrice] = useState('0.00');
-  const [capacity, setCapacity] = useState('');
-
-  const shouldRender = useRef(true);
-  const userData = useSelector((state) => state.user.user);
-
-  useEffect(() => {
-    if(!shouldRender.current) return;
-    shouldRender.current = false;
-
-    AddressFinder.watch({
-      inputField: '#searchField',
-      apiKey: 'ak_m0zxiecxQIHcU5zeCMt5gTiejFWA7',   //only valid for 30 days
-      onAddressRetrieved: (address) => {
-        setLineOne(address.line_1);
-        setLineTwo(address.line_2);
-        setPostCode(address.postcode);
+    const handleCheckbox = (e) => {
+        const { value, checked } = e.target;
+        if(checked) {
+          setSubCategory([...subCategory, value]);
+        } else {
+          setSubCategory(subCategory.filter((e) => e !== value));
+        }
       }
-    });
-  }, []);
 
-  const handleAddress = () => {
-    setManual(!manual);
-  }
-
-  const handleCheckbox = (e) => {
-    const { value, checked } = e.target;
-    if(checked) {
-      setSubCategory([...subCategory, value]);
-    } else {
-      setSubCategory(subCategory.filter((e) => e !== value));
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = (e) => {
+        e.preventDefault();
     const db = getDatabase(app);
 
     const eventRef = ref(db, 'users/' + userData.id + '/events/' + eventName);
@@ -71,11 +44,7 @@ function Create() {
     set(eventRef, {
      eventName, eventDesc, country, subCategory, eventDate, startTime, endTime, venueName, lineOne, lineTwo, postCode, ticketPrice, capacity
     }).then(() => {
-      alert('Event created');
-      /*setThumbnail('');
-      setPicOne('');
-      setPicTwo('');
-      setPicThree('');*/
+      alert('Event updated');
       setEventName('');
       setEventDesc('');
       setCountry('');
@@ -90,12 +59,11 @@ function Create() {
       setTicketPrice('0.00');
       setCapacity('');
     }).catch((err) => alert(err, 'Ensure all mandatory fields are filled'));
-
-  }
+    }
 
   return (
-    <Box component='div'>
-      <Navbar title={pages.newEvent.title} leftText={pages.newEvent.leftText} leftIcon={pages.newEvent.leftIcon} link={pages.newEvent.leftLink} user={userData}/>
+    <Box>
+      <Navbar title={pages.editEvent.title} leftText={pages.editEvent.leftText} leftIcon={pages.editEvent.leftIcon} link={pages.editEvent.leftLink} user={userData} />
       <Box component='form' display='flex' marginTop='70px' onSubmit={handleSubmit}>
         <Box component='div' width='50%' margin='10px'>
           <Typography>Event Thumbnail*</Typography>
@@ -110,7 +78,7 @@ function Create() {
             onChange={(e) => setEventName(e.target.value)}
             variant="outlined" 
             helperText='This will be your event’s title. Your title will be used to help create your event’s summary, description, category, and tags, so be speciefic !'
-            required/>
+            disabled/>
             <TextField 
             sx={{ margin: '5px'}} 
             id="outlined-multiline-flexible" 
@@ -184,16 +152,6 @@ function Create() {
             onChange={(e) => setVenueName(e.target.value)}
             variant="outlined" />
             <Typography>Venue Address</Typography>
-            <TextField 
-            id="searchField"
-            slotProps={{
-              input: {
-                startAdornment: <InputAdornment position="start"><SearchIcon/></InputAdornment>
-              }
-            }}
-            label='Search address/postcode'
-            disabled={manual} />
-            <Button onClick={handleAddress}>{manual ? 'Search Address or Postcode' : 'Enter address manually'}</Button>
             <Box>
               <TextField label='Address line 1' value={lineOne} onChange={(e) => setLineOne(e.target.value)} variant='outlined' />
               <TextField label='Address line 2' value={lineTwo} onChange={(e) => setLineTwo(e.target.value)} variant='outlined' />
@@ -228,4 +186,4 @@ function Create() {
   )
 }
 
-export default Create
+export default EditEvent

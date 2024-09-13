@@ -47,7 +47,10 @@ function Home() {
       <Navbar title={pages.home.title} leftText={pages.home.leftText} leftIcon={pages.home.leftIcon} link={pages.home.leftLink} user={userData} />
       {events?.length > 0 ? events.map((event, i) => {
         return <Box key={i} margin='100px'>
-          <Card component='button' onClick={handleClick(event)}>{event.eventName}</Card>
+          <Card component='button' onClick={handleClick(event)}>
+            <Typography variant="h6">{event.eventName}</Typography>
+            <Typography variant="body1">{event.eventDesc}</Typography>
+          </Card>
         </Box>
       }) : <Typography variant='h6' component='div' position='absolute' top='50%' left='40%'>No Events at the Moment</Typography>}
     </Box>
